@@ -37,6 +37,7 @@
 #include <cmath>
 #include "features.h"
 #include "trigger.h"
+#include "simple_strobe.h"
 
 /** @file
 
@@ -126,6 +127,7 @@ Features::Features(dc1394camera_t *camera):
   camera_(camera)
 {
   trigger_.reset(new Trigger(camera));
+  strobe_.reset(new SimpleStrobe(camera));
 }
 
 /** Query and set all features for newly opened (or reopened) device.
@@ -181,6 +183,8 @@ bool Features::initialize(Config *newconfig)
   // set up trigger class, if supported by this camera
   if (hasTrigger())
     retval = trigger_->initialize(newconfig);
+
+  retval = strobe_->initialize(newconfig);
 
   // save configured values
   oldconfig_ = *newconfig;
@@ -250,6 +254,8 @@ void Features::reconfigure(Config *newconfig)
   // reconfigure trigger class, if supported by this camera
   if (hasTrigger())
     trigger_->reconfigure(newconfig);
+
+  strobe_->reconfigure(newconfig);
 
   // save modified values
   oldconfig_ = *newconfig;

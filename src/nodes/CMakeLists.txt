@@ -1,11 +1,12 @@
 # common source files for both node and nodelet driver interfaces
-set(CAMERA1394_SOURCES 
+set(CAMERA1394_SOURCES
   driver1394.cpp
   dev_camera1394.cpp
   features.cpp
   format7.cpp
   modes.cpp
-  trigger.cpp)
+  trigger.cpp
+  simple_strobe.cpp)
 
 ## The following used to be necessary rosbuild on Mac OSX.
 ## No telling what, if anything, is needed with catkin.
