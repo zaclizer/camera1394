@@ -126,6 +126,7 @@ private:
                        double old_value, double *value,
                        double old_value2, double *value2);
 
+public:
   dc1394camera_t *camera_;              ///< current camera
   dc1394featureset_t feature_set_;      ///< that camera's feature set
   Config oldconfig_;                    ///< previous Config settings

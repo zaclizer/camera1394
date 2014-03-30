@@ -45,6 +45,7 @@
 #include <dynamic_reconfigure/server.h>
 #include <image_transport/image_transport.h>
 #include <sensor_msgs/CameraInfo.h>
+#include <samplereturn_msgs/CameraParams.h>
 
 #include "dev_camera1394.h"
 #include "camera1394/Camera1394Config.h"
@@ -112,6 +113,17 @@ private:
   double topic_diagnostics_min_freq_;
   double topic_diagnostics_max_freq_;
   diagnostic_updater::TopicDiagnostic topic_diagnostics_;
+
+  /* add-on for slaving camera parameters together */
+  bool isMaster_;
+  void pollParams();
+  void writeParams();
+  void paramsCallback(const samplereturn_msgs::CameraParams &msg);
+  uint32_t s_val_;
+  uint32_t b_val_;
+  uint32_t g_val_;
+  ros::Publisher params_pub_;
+  ros::Subscriber params_sub_;
 
 }; // end class Camera1394Driver
 

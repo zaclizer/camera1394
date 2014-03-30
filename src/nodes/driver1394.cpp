@@ -88,7 +88,13 @@ namespace camera1394_driver
 		       diagnostic_updater::FrequencyStatusParam
 		       (&topic_diagnostics_min_freq_,
 			&topic_diagnostics_max_freq_, 0.1, 10),
-		       diagnostic_updater::TimeStampStatusParam())
+		       diagnostic_updater::TimeStampStatusParam()),
+    isMaster_(false),
+    s_val_(0),
+    g_val_(0),
+    b_val_(0),
+    params_pub_(camera_nh_.advertise<samplereturn_msgs::CameraParams>("camera_params", 10)),
+    params_sub_(camera_nh_.subscribe("camera_params", 10, &Camera1394Driver::paramsCallback, this))
   {}
 
   Camera1394Driver::~Camera1394Driver()
@@ -169,6 +175,8 @@ namespace camera1394_driver
     topic_diagnostics_min_freq_ = newconfig.frame_rate - delta;
     topic_diagnostics_max_freq_ = newconfig.frame_rate + delta;
 
+    isMaster_ = newconfig.isMaster;
+
     return success;
   }
 
@@ -201,6 +209,14 @@ namespace camera1394_driver
                 publish(image);
               }
           }
+        if (isMaster_)
+        {
+          pollParams();
+        }
+        else
+        {
+          writeParams();
+        }
       } // release mutex lock
 
     // Always run the diagnostics updater: no lock required.
@@ -212,6 +228,36 @@ namespace camera1394_driver
         // busy wait (DO NOT hold the lock while sleeping)
         cycle_.sleep();
       }
+  }
+
+  /* If the camera is a master, poll key parameters and publish.
+   * Currently, shutter, gain, brightness */
+  void Camera1394Driver::pollParams()
+  {
+    dc1394_feature_get_value(dev_->features_->camera_, DC1394_FEATURE_SHUTTER, &s_val_);
+    dc1394_feature_get_value(dev_->features_->camera_, DC1394_FEATURE_GAIN, &g_val_);
+    dc1394_feature_get_value(dev_->features_->camera_, DC1394_FEATURE_BRIGHTNESS, &b_val_);
+    samplereturn_msgs::CameraParams msg;
+    msg.shutter = s_val_;
+    msg.gain = g_val_;
+    msg.brightness = b_val_;
+    params_pub_.publish(msg);
+  }
+
+  /* If the camera is a slave, it will receive messages containing
+   * parameter values and set them on the next poll */
+  void Camera1394Driver::paramsCallback(const samplereturn_msgs::CameraParams &msg)
+  {
+    s_val_ = msg.shutter;
+    g_val_ = msg.gain;
+    b_val_ = msg.brightness;
+  }
+
+  void Camera1394Driver::writeParams()
+  {
+    dc1394_feature_set_value(dev_->features_->camera_, DC1394_FEATURE_SHUTTER, s_val_);
+    dc1394_feature_set_value(dev_->features_->camera_, DC1394_FEATURE_GAIN, g_val_);
+    dc1394_feature_set_value(dev_->features_->camera_, DC1394_FEATURE_BRIGHTNESS, b_val_);
   }
 
   /** Publish camera stream topics

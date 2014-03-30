@@ -12,6 +12,7 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   rostest
   sensor_msgs
+  samplereturn_msgs
   tf)
 
 # This driver uses Boost threads
@@ -75,7 +76,7 @@ if (CATKIN_ENABLE_TESTING)
     add_rostest(tests/trigger_node.test)
     add_rostest(tests/trigger_nodelet.test)
   endif ()
-  
+
   add_rostest(tests/no_device_node.test)
   add_rostest(tests/no_device_nodelet.test)
 else ()
