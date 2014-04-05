@@ -208,15 +208,15 @@ namespace camera1394_driver
               {
                 publish(image);
               }
+            if (isMaster_)
+              {
+                pollParams();
+              }
+            else
+              {
+                writeParams();
+              }
           }
-        if (isMaster_)
-        {
-          pollParams();
-        }
-        else
-        {
-          writeParams();
-        }
       } // release mutex lock
 
     // Always run the diagnostics updater: no lock required.
