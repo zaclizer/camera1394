@@ -30,12 +30,12 @@ bool SimpleStrobe::reconfigure(Config *newconfig)
   if (newconfig->strobe)
   {
     ROS_INFO("strobeOn()");
-    strobeOn();
+    return strobeOn();
   }
   else
   {
     ROS_INFO("strobeOff()");
-    strobeOff();
+    return strobeOff();
   }
 }
 
